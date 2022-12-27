@@ -3,11 +3,15 @@
   "displayName": "className Completion in wxss and wxml",
   "description": "微信小程序wxml与wxss双向类名提示",
   "publisher": "wjf",
+  "repository": {
+    "url": "https://github.com/wjf2016/wxmlClassNameToWxss.git"
+  },
   "icon": "icon.jpg",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.42.0"
   },
+  "license": "MIT",
   "author": {
     "name": "阿福"
   },
