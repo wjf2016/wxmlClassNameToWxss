@@ -1,11 +1,15 @@
 {
   "name": "wxml-class-name-to-wxss",
   "displayName": "className Completion in wxss and wxml",
-  "description": "className Completion in wxss and wxml",
-  "publisher": "阿福",
-  "version": "0.0.1",
+  "description": "微信小程序wxml与wxss双向类名提示",
+  "publisher": "wjf",
+  "icon": "icon.jpg",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.42.0"
+  },
+  "author": {
+    "name": "阿福"
   },
   "categories": [
     "Programming Languages",
@@ -35,14 +39,16 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./"
   },
+  "dependencies": {
+    "@wxml/generator": "^0.1.0",
+    "@wxml/parser": "^0.4.0",
+    "css-tree": "^2.3.1"
+  },
   "devDependencies": {
     "@types/node": "^10.12.21",
     "@types/vscode": "^1.42.0",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
-    "@wxml/generator": "^0.1.0",
-    "@wxml/parser": "^0.4.0",
-    "css-tree": "^2.3.1",
     "eslint": "^7.21.0",
     "typescript": "^4.2.3",
     "vscode": "^1.1.37"
