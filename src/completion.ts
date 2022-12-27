@@ -47,9 +47,18 @@ function provideCompletionItems(
   document: vscode.TextDocument,
   position: vscode.Position
 ) {
-  const typeText = document
-    .lineAt(position)
-    .text.substring(position.character - 1, position.character);
+  // 光标所在行内容
+  const lineText = document.lineAt(position).text;
+  // 键入的字符
+  const typeText = lineText.substring(
+    position.character - 1,
+    position.character
+  );
+  // 光标处下一个字符
+  const nextCharacter = lineText.substring(
+    position.character,
+    position.character + 1
+  );
 
   const filePath = document.fileName;
 
@@ -72,11 +81,11 @@ function provideCompletionItems(
     const range: vscode.Range = new vscode.Range(start, position);
     const text: string = document.getText(range);
 
-    if (!text.match(/class=["']/)) {
+    if (!text.match(/class=(["']$|["'].*["']$)/)) {
       return;
     }
 
-    return getVscodeCompletionItemFromWxss(filePath);
+    return getVscodeCompletionItemFromWxss(filePath, text, nextCharacter);
   }
 }
 
@@ -134,12 +143,16 @@ function getVscodeCompletionItemFromWxml(filePath: string): CompletionItem[] {
 }
 
 /**
- * 从wxss文件中提取用自动完成的类名
+ * 从wxss文件中提取用于自动完成的类名
  *
  * @param {string} filePath
  * @returns {CompletionItem[]}
  */
-function getVscodeCompletionItemFromWxss(filePath: string): CompletionItem[] {
+function getVscodeCompletionItemFromWxss(
+  filePath: string,
+  text: string,
+  nextCharacter: string
+): CompletionItem[] {
   const dirname = path.dirname(filePath);
   const extname = path.extname(filePath);
   const basename = path.basename(filePath);
@@ -191,13 +204,16 @@ function getVscodeCompletionItemFromWxss(filePath: string): CompletionItem[] {
   let classNames = getClassName(wxssFilePath);
   classNames = [...new Set(classNames)];
 
-  console.log(classNames);
-
   return classNames.map((item: string) => {
-    return new vscode.CompletionItem(
-      `.${item}`,
-      vscode.CompletionItemKind.Text
-    );
+    let newItem = item;
+
+    if (text.match(/class='$/) && nextCharacter !== "'") {
+      newItem = `${newItem}'`;
+    } else if (text.match(/class="$/) && nextCharacter !== '"') {
+      newItem = `${newItem}"`;
+    }
+
+    return new vscode.CompletionItem(newItem, vscode.CompletionItemKind.Text);
   });
 }
 
@@ -224,7 +240,7 @@ export default function (context: vscode.ExtensionContext): void {
         provideCompletionItems,
         resolveCompletionItem,
       },
-      ". '\""
+      ...[".", " ", '"', "'", "''", '""']
     )
   );
 }
