@@ -1,1 +1,3 @@
-# wxss 中提示 wxml 中的类名以及 wxml 中提示 wxss 中的类名
+在 wxss 文件中键入.时提示相同文件名 wxml 文件中的类名
+
+在 wxml 文件中提示相同文件名中的 wxss 文件中的类名

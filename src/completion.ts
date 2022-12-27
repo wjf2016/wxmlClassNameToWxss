@@ -81,7 +81,7 @@ function provideCompletionItems(
     const range: vscode.Range = new vscode.Range(start, position);
     const text: string = document.getText(range);
 
-    if (!text.match(/class=(["']$|["'].*["']$)/)) {
+    if (!text.match(/class=["']/)) {
       return;
     }
 
@@ -165,6 +165,15 @@ function getVscodeCompletionItemFromWxss(
     return [];
   }
 
+  const { workspaceFolders } = vscode.workspace;
+  const workSpacePath = (workspaceFolders as any)[0].uri.fsPath;
+
+  /**
+   * 获取指定wxss文件中的类名
+   *
+   * @param {string} filePath
+   * @returns {string[]}
+   */
   function getClassName(filePath: string): string[] {
     const cssContent = fs.readFileSync(filePath, "utf8");
     const cssAst = cssParse(cssContent, { atrule: "@import" });
@@ -183,11 +192,11 @@ function getVscodeCompletionItemFromWxss(
       visit: "Atrule",
       enter(node: any) {
         if (node.name === "import") {
-          const importPath = node.prelude.head.data.value;
+          const importPath = node.prelude.children.head.data.value;
           let subFilePath = "";
 
           if (importPath.startsWith("/")) {
-            subFilePath = path.join(__dirname, importPath);
+            subFilePath = path.join(workSpacePath, importPath);
           } else {
             const dir = path.dirname(filePath);
             subFilePath = path.resolve(dir, importPath);
@@ -198,10 +207,45 @@ function getVscodeCompletionItemFromWxss(
       },
     });
 
-    return classNames;
+    return [...new Set(classNames)];
   }
 
+  /**
+   * 获取app.wxss文件中的类名
+   *
+   * @returns {string[]}
+   */
+  function getAppWxssClassNames(): string[] {
+    const projectJson = path.join(workSpacePath, "project.config.json");
+
+    if (!fs.existsSync(projectJson)) {
+      return [];
+    }
+
+    let projectObj = null;
+
+    try {
+      projectObj = JSON.parse(fs.readFileSync(projectJson, "utf-8"));
+    } catch (error) {}
+
+    if (!projectObj) {
+      return [];
+    }
+
+    const { miniprogramRoot } = projectObj;
+    let appWxssPath = path.join(workSpacePath, "app.wxss");
+
+    if (miniprogramRoot) {
+      appWxssPath = path.join(workSpacePath, miniprogramRoot, "app.wxss");
+    }
+
+    return getClassName(appWxssPath);
+  }
+
+  const appWxssClassNames = getAppWxssClassNames();
   let classNames = getClassName(wxssFilePath);
+
+  classNames = classNames.concat(appWxssClassNames);
   classNames = [...new Set(classNames)];
 
   return classNames.map((item: string) => {
