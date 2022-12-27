@@ -1,0 +1,50 @@
+{
+  "name": "wxml-class-name-to-wxss",
+  "displayName": "className Completion in wxss",
+  "description": "className Completion in wxss",
+  "publisher": "阿福",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "IntelliSense",
+    "completion",
+    "autocomplete",
+    "class",
+    "wxss",
+    "wxml",
+    "classtowxss",
+    "class to wxss",
+    "classnametowxss",
+    "classname to wxss"
+  ],
+  "activationEvents": [
+    "onLanguage:css",
+    "onLanguage:wxss",
+    "onLanguage:html",
+    "onLanguage:wxml"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.21",
+    "@types/vscode": "^1.42.0",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "@wxml/generator": "^0.1.0",
+    "@wxml/parser": "^0.4.0",
+    "css-tree": "^2.3.1",
+    "eslint": "^7.21.0",
+    "typescript": "^4.2.3",
+    "vscode": "^1.1.37"
+  }
+}
