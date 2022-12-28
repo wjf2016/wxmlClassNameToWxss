@@ -461,10 +461,8 @@ export default function (context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       [
-        { scheme: "file", language: "css" },
-        { scheme: "file", language: "wxss" },
-        { scheme: "file", language: "html" },
-        { scheme: "file", language: "wxml" },
+        { scheme: "file", pattern: "**/*.wxss" },
+        { scheme: "file", pattern: "**/*.wxml" },
       ],
       {
         provideCompletionItems,

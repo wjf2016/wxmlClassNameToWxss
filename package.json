@@ -32,10 +32,8 @@
     "classname to wxss"
   ],
   "activationEvents": [
-    "onLanguage:css",
-    "onLanguage:wxss",
-    "onLanguage:html",
-    "onLanguage:wxml"
+    "workspaceContains:**/*.wxss",
+    "workspaceContains:**/*.wxml"
   ],
   "main": "./out/extension.js",
   "scripts": {
