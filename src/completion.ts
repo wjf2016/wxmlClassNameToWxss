@@ -401,8 +401,9 @@ function provideCompletionItems(
       return getVscodeCompletionItemFromWxml(filePath, typeText);
     }
 
-    if (typeText === "r") {
-      typeText = getCursorCharacter(document, position, 3);
+    typeText = getCursorCharacter(document, position, 3);
+
+    if (typeText === VAR_CHARACTER) {
       return getVscodeCompletionItemFromWxml(filePath, typeText);
     }
 
