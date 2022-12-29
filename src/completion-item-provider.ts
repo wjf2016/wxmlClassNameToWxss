@@ -15,7 +15,8 @@ const SINGLE_QUOTATION_CHARACTER = "'"; // 单引号
 const DOUBLE_QUOTATION_CHARACTER = '"'; // 双引号
 const TWO_SINGLE_QUOTATION_CHARACTER = "''"; // 成对单引号
 const TWO_DOUBLE_QUOTATION_CHARACTER = '""'; // 成对双引号
-const VAR_CHARACTER = "var"; // var字符
+const DOUBLE_DASH = "--"; // --字符
+const CSS_VAR = "var(--"; // --字符
 const WXML_FILE = ".wxml"; // wxml类型文件
 const WXSS_FILE = ".wxss"; // wxss类型文件
 
@@ -369,13 +370,13 @@ function getVscodeCompletionItemFromWxml(
   }
 
   // 如果是var字符，则从全局样式中获取全局样式变量
-  if (typeText === VAR_CHARACTER) {
+  if (typeText === CSS_VAR) {
     const workSpacePath = getWorkSpacePath(filePath);
     const cssVariable = getGlobalCssVariable(workSpacePath);
 
     return cssVariable.map((item: string) => {
       return new vscode.CompletionItem(
-        `(${item})`,
+        `${item}`,
         vscode.CompletionItemKind.Text
       );
     });
@@ -401,9 +402,9 @@ function provideCompletionItems(
       return getVscodeCompletionItemFromWxml(filePath, typeText);
     }
 
-    typeText = getCursorCharacter(document, position, 3);
+    typeText = getCursorCharacter(document, position, 6);
 
-    if (typeText === VAR_CHARACTER) {
+    if (typeText === CSS_VAR) {
       return getVscodeCompletionItemFromWxml(filePath, typeText);
     }
 
@@ -476,7 +477,7 @@ export default function (context: vscode.ExtensionContext): void {
         DOUBLE_QUOTATION_CHARACTER,
         TWO_SINGLE_QUOTATION_CHARACTER,
         TWO_DOUBLE_QUOTATION_CHARACTER,
-        VAR_CHARACTER,
+        DOUBLE_DASH,
       ]
     )
   );

@@ -1,8 +1,10 @@
 import * as vscode from "vscode";
-import completion from "./completion";
+import completionItemProvider from "./completion-item-provider";
+import symbolProvider from "./symbol-provider";
 
 export function activate(context: vscode.ExtensionContext): void {
-  completion(context);
+  completionItemProvider(context);
+  symbolProvider(context);
   console.log("wxml-class-name-to-wxss 插件已激活");
 }
 
