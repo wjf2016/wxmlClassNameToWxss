@@ -77,16 +77,45 @@ function provideDocumentSymbols(
         (attr: any) => attr.key === "class" && attr.value
       );
 
-      const eventBindingArr = attributes.filter(
-        (attr: any) => attr.key.match("^bind:?") && attr.value
-      );
-
       if (idSelector) {
         name = `${name}#${idSelector.value}`;
       }
 
       if (classSelector) {
-        const classNameArr = classSelector.value.split(" ");
+        const { children } = classSelector;
+        let classNameArr: string[] = [];
+
+        if (children.length) {
+          children.forEach((item: any) => {
+            if (item.type === "WXText") {
+              classNameArr.push(...item.value.trim().split(" "));
+            }
+
+            if (item.type === "WXAttributeInterpolation") {
+              classNameArr.push(item.rawValue);
+            }
+          });
+        } else {
+          classNameArr = classSelector.value.trim().split(" ");
+        }
+
+        // 类名排序，以“{{”开头的放在后面
+        classNameArr.sort(function (prev: string, next: string) {
+          if (prev.startsWith("{{") && next.startsWith("{{")) {
+            return 0;
+          }
+
+          if (!prev.startsWith("{{") && !next.startsWith("{{")) {
+            return 0;
+          }
+
+          if (prev.startsWith("{{")) {
+            return 1;
+          }
+
+          return -1;
+        });
+
         const classNameStr = classNameArr.reduce(
           (prev: string, next: string) => {
             return `${prev}.${next}`;
@@ -95,17 +124,6 @@ function provideDocumentSymbols(
         );
 
         name = `${name}${classNameStr}`;
-      }
-
-      if (eventBindingArr.length) {
-        const eventBindingStr = eventBindingArr.reduce(
-          (prev: any, next: any) => {
-            return `${prev}[${next.key}="${next.value}"]`;
-          },
-          ""
-        );
-
-        name = `${name}${eventBindingStr}`;
       }
 
       const range = new vscode.Range(
@@ -133,6 +151,34 @@ function provideDocumentSymbols(
       );
 
       documentSymbols.push(newDocumentSymbol);
+    },
+    WXAttribute(node: any) {
+      const { loc } = node;
+
+      if (
+        new RegExp(
+          `^(bind|catch|mut-bind|capture-bind|capture-catch|capture-):?`
+        ).test(node.key)
+      ) {
+        const name = `[${node.key}=${node.rawValue}]`;
+
+        const range = new vscode.Range(
+          new vscode.Position(loc.start.line - 1, loc.start.column - 1),
+          new vscode.Position(loc.end.line - 1, loc.end.column - 1)
+        );
+
+        const selectionRange = range;
+
+        const newDocumentSymbol = new vscode.DocumentSymbol(
+          name,
+          "",
+          SymbolKind.Function,
+          range,
+          selectionRange
+        );
+
+        documentSymbols.push(newDocumentSymbol);
+      }
     },
   });
 

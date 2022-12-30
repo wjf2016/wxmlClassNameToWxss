@@ -13,10 +13,8 @@ const DOT_CHARACTER = "."; // .字符
 const SPACE_CHARACTER = " "; // 空格
 const SINGLE_QUOTATION_CHARACTER = "'"; // 单引号
 const DOUBLE_QUOTATION_CHARACTER = '"'; // 双引号
-const TWO_SINGLE_QUOTATION_CHARACTER = "''"; // 成对单引号
-const TWO_DOUBLE_QUOTATION_CHARACTER = '""'; // 成对双引号
-const DOUBLE_DASH = "--"; // --字符
-const CSS_VAR = "var(--"; // --字符
+const LEFT_BRACKETS = "("; // 左括号
+const CSS_VAR = "var("; // 样式中引用样式变量
 const WXML_FILE = ".wxml"; // wxml类型文件
 const WXSS_FILE = ".wxss"; // wxss类型文件
 
@@ -317,72 +315,51 @@ function getVscodeCompletionItemFromWxss(
  * @param {string} filePath
  * @returns {CompletionItem[]}
  */
-function getVscodeCompletionItemFromWxml(
-  filePath: string,
-  typeText: string
-): CompletionItem[] {
-  // 如果是.字符，则从wxml文件中获取类名
-  if (typeText === DOT_CHARACTER) {
-    const dirname = path.dirname(filePath);
-    const extname = path.extname(filePath);
-    const basename = path.basename(filePath);
-    const wxmlFilePath = path.join(
-      dirname,
-      basename.substring(0, basename.lastIndexOf(extname)) + WXML_FILE
-    );
+function getVscodeCompletionItemFromWxml(filePath: string): CompletionItem[] {
+  const dirname = path.dirname(filePath);
+  const extname = path.extname(filePath);
+  const basename = path.basename(filePath);
+  const wxmlFilePath = path.join(
+    dirname,
+    basename.substring(0, basename.lastIndexOf(extname)) + WXML_FILE
+  );
 
-    if (!fs.existsSync(wxmlFilePath)) {
-      return [];
-    }
+  if (!fs.existsSync(wxmlFilePath)) {
+    return [];
+  }
 
-    const wxmlFileContent = fs.readFileSync(wxmlFilePath, "utf-8");
-    const wxmlAST = wxmlParse(wxmlFileContent);
-    let classNames: string[] = [];
+  const wxmlFileContent = fs.readFileSync(wxmlFilePath, "utf-8");
+  const wxmlAST = wxmlParse(wxmlFileContent);
+  let classNames: string[] = [];
 
-    traverse(wxmlAST, {
-      WXAttribute(node: any) {
-        if (node.key === "class") {
-          const { value, children } = node;
+  traverse(wxmlAST, {
+    WXAttribute(node: any) {
+      if (node.key === "class") {
+        const { value, children } = node;
 
-          if (!children.length) {
-            classNames.push(...value.split(" "));
-          }
-
-          children.forEach((child: any) => {
-            const { type, value } = child;
-
-            if (type === "WXText") {
-              classNames.push(...value.split(" "));
-            }
-          });
+        if (!children.length) {
+          classNames.push(...value.trim().split(" "));
         }
-      },
-    });
 
-    classNames = [...new Set(classNames.filter((item) => item))];
+        children.forEach((child: any) => {
+          const { type, value } = child;
 
-    return classNames.map((item: string) => {
-      return new vscode.CompletionItem(
-        `.${item}`,
-        vscode.CompletionItemKind.Text
-      );
-    });
-  }
+          if (type === "WXText") {
+            classNames.push(...value.trim().split(" "));
+          }
+        });
+      }
+    },
+  });
 
-  // 如果是var字符，则从全局样式中获取全局样式变量
-  if (typeText === CSS_VAR) {
-    const workSpacePath = getWorkSpacePath(filePath);
-    const cssVariable = getGlobalCssVariable(workSpacePath);
+  classNames = [...new Set(classNames.filter((item) => item))];
 
-    return cssVariable.map((item: string) => {
-      return new vscode.CompletionItem(
-        `${item}`,
-        vscode.CompletionItemKind.Text
-      );
-    });
-  }
-
-  return [];
+  return classNames.map((item: string) => {
+    return new vscode.CompletionItem(
+      `.${item}`,
+      vscode.CompletionItemKind.Text
+    );
+  });
 }
 
 /**
@@ -399,13 +376,22 @@ function provideCompletionItems(
   // 在wxss文件中输入.时，提示wxml中定义的类名
   if (isWxss(filePath)) {
     if (typeText === DOT_CHARACTER) {
-      return getVscodeCompletionItemFromWxml(filePath, typeText);
+      return getVscodeCompletionItemFromWxml(filePath);
     }
 
-    typeText = getCursorCharacter(document, position, 6);
+    typeText = getCursorCharacter(document, position, 4);
 
+    // 如果是var字符，则从全局样式中获取全局样式变量
     if (typeText === CSS_VAR) {
-      return getVscodeCompletionItemFromWxml(filePath, typeText);
+      const workSpacePath = getWorkSpacePath(filePath);
+      const cssVariable = getGlobalCssVariable(workSpacePath);
+
+      return cssVariable.map((item: string) => {
+        return new vscode.CompletionItem(
+          `${item}`,
+          vscode.CompletionItemKind.Text
+        );
+      });
     }
 
     return;
@@ -475,9 +461,7 @@ export default function (context: vscode.ExtensionContext): void {
         SPACE_CHARACTER,
         SINGLE_QUOTATION_CHARACTER,
         DOUBLE_QUOTATION_CHARACTER,
-        TWO_SINGLE_QUOTATION_CHARACTER,
-        TWO_DOUBLE_QUOTATION_CHARACTER,
-        DOUBLE_DASH,
+        LEFT_BRACKETS,
       ]
     )
   );

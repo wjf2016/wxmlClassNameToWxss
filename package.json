@@ -1,13 +1,13 @@
 {
   "name": "wxml-class-name-to-wxss",
   "displayName": "className Completion in wxss and wxml",
-  "description": "微信小程序wxml与wxss双向类名提示，以及为wxml增加符号表",
+  "description": "微信小程序wxml与wxss双向类名提示；wxss中提示全局样式page标签定义的变量；为wxml文件增加符号表",
   "publisher": "wjf",
   "repository": {
     "url": "https://github.com/wjf2016/wxmlClassNameToWxss.git"
   },
   "icon": "icon.jpg",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "engines": {
     "vscode": "^1.42.0"
   },
