@@ -7,7 +7,7 @@
     "url": "https://github.com/wjf2016/wxmlClassNameToWxss.git"
   },
   "icon": "icon.jpg",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.42.0"
   },
@@ -33,7 +33,9 @@
   ],
   "activationEvents": [
     "workspaceContains:**/*.wxss",
-    "workspaceContains:**/*.wxml"
+    "workspaceContains:**/*.wxml",
+    "onLanguage:wxss",
+    "onLanguage:wxml"
   ],
   "main": "./out/extension.js",
   "scripts": {
